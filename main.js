@@ -50,9 +50,10 @@ async function showAutocomplete(searchText, render) {
     ]);
     cleaning([...wrapForRepositories.querySelectorAll('.app__repo')]);
 
+    previousText = searchText;
+
     if (!searchText || !searchText.split(' ').join('')) return;
 
-    previousText = searchText;
     let result;
 
     try {
