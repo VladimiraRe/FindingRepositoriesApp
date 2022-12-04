@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/normalize.css">
+    <link rel="stylesheet" href="./css/style.css">
+    <title>List of GitHub repositories</title>
+</head>
+
+<body>
+    <div class="app">
+        <div class="app__wrap">
+            <form class="app__form">
+                <input type="text" class="app__input">
+            </form>
+            <ul class="app__autocomplete"></ul>
+        </div>
+        <ul class="app__repositories">
+        </ul>
+    </div>
+
+    <template id="app__template">
+        <li class="app__repo">
+            <ul class="app__info">
+                <li class="app__info-item"><span class="app__info-txt">Name: </span><span class="app__info-txt"></span>
+                </li>
+                <li class="app__info-item"><span class="app__info-txt">Owner: </span><span class="app__info-txt"></span>
+                </li>
+                <li class="app__info-item"><span class="app__info-txt">Stars: </span><span class="app__info-txt"></span>
+                </li>
+            </ul>
+            <button class="app__btn"><svg class="app__icon" role="img" aria-label="Delete" width="46" height="42"
+                    viewBox="0 0 46 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M2 40.5L44 2" stroke="#FF0000" stroke-width="4" />
+                    <path d="M44 40.5L2 2" stroke="#FF0000" stroke-width="4" />
+                </svg></button>
+        </li>
+
+        <li class="app__autocomplete-item"><span class="app__autocomplete-txt"></span></li>
+
+        <div class="app__notice">
+            <p class="app__notice-txt">You already saved it</p>
+        </div>
+    </template>
+
+    <script src="./main.js"></script>
+</body>
+
+</html>
