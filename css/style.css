@@ -98,6 +98,7 @@ button {
     background-color: rgba(227, 227, 227, 1);
     height: 44px;
     position: relative;
+    cursor: pointer;
 }
 .app__autocomplete-item:hover {
     background-color: #65cdf9;
