@@ -10,8 +10,12 @@ const wrapForRepositories = document.querySelector('.app__repositories');
 const form = document.querySelector('.app__form');
 let isRunning;
 let previousText;
+let isFocus;
+let isFocusListener = false;
+let runFocusListener;
 
 showAutocomplete = debounce(showAutocomplete, 1000);
+focusClean = debounce(focusClean, 3000);
 
 runApp();
 
@@ -33,6 +37,7 @@ function runApp() {
 
     searchWindow.addEventListener('input', async () => {
         const searchText = searchWindow.value;
+
         try {
             await showAutocomplete(searchText, addSelectedRepo);
         } catch (err) {
@@ -48,7 +53,6 @@ async function showAutocomplete(searchText, render) {
     cleaning([
         ...wrapForAutocomplete.querySelectorAll('.app__autocomplete-item'),
     ]);
-    cleaning([...wrapForRepositories.querySelectorAll('.app__repo')]);
 
     previousText = searchText;
 
@@ -73,13 +77,13 @@ async function showAutocomplete(searchText, render) {
 
     try {
         createAutocomplete(resultArr, wrapForAutocomplete);
+        runFocusListener = true;
+        if (!isRunning) {
+            render(wrapForAutocomplete);
+            isRunning = true;
+        }
     } catch (err) {
         throw err;
-    }
-
-    if (!isRunning) {
-        render(wrapForAutocomplete);
-        isRunning = true;
     }
 }
 
@@ -89,6 +93,14 @@ function addSelectedRepo(container) {
         if (!choice) return;
         const name = choice.querySelector('.app__autocomplete-txt').textContent;
         const owner = choice.dataset.owner;
+
+        if (searchWindow.value !== '') {
+            searchWindow.value = '';
+            if (!isFocusListener) {
+                searchWindow.addEventListener('focus', checkNeedFocusClean);
+                isFocusListener = true;
+            }
+        }
 
         const check = checkAddedRepo([name, owner]);
 
@@ -122,6 +134,23 @@ function checkAddedRepo(newRepo) {
         if (name === newRepo[0] && owner === newRepo[1]) return false;
     }
     return addedRepos.length;
+}
+
+function checkNeedFocusClean() {
+    if (searchWindow.value !== '' || !runFocusListener) return;
+    isFocus = true;
+    searchWindow.addEventListener('blur', () => (isFocus = false), {
+        once: true,
+    });
+    focusClean();
+}
+
+function focusClean() {
+    if (isFocus === false || searchWindow.value !== '') return;
+    cleaning([
+        ...wrapForAutocomplete.querySelectorAll('.app__autocomplete-item'),
+    ]);
+    runFocusListener = false;
 }
 
 function cleaning(element) {
@@ -218,6 +247,9 @@ function handleError(err, errType) {
     }
     if (errType === 'OfflineError') {
         text = 'Отсутствует связь с интернетом';
+    }
+    if (errType === 'DataMissError') {
+        text = 'Не могу найти';
     }
 
     createNotice(text, form, 3000, 'app__notice--form');
