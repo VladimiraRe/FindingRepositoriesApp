@@ -10,12 +10,9 @@ const wrapForRepositories = document.querySelector('.app__repositories');
 const form = document.querySelector('.app__form');
 let isRunning;
 let previousText;
-let isFocus;
-let isFocusListener = false;
-let runFocusListener;
+let isRepeatedRequest = false;
 
 showAutocomplete = debounce(showAutocomplete, 1000);
-focusClean = debounce(focusClean, 3000);
 
 runApp();
 
@@ -48,7 +45,8 @@ function runApp() {
 }
 
 async function showAutocomplete(searchText, render) {
-    if (searchText === previousText) return;
+    if (searchText === previousText && !isRepeatedRequest) return;
+    isRepeatedRequest = false;
 
     cleaning([
         ...wrapForAutocomplete.querySelectorAll('.app__autocomplete-item'),
@@ -77,7 +75,6 @@ async function showAutocomplete(searchText, render) {
 
     try {
         createAutocomplete(resultArr, wrapForAutocomplete);
-        runFocusListener = true;
         if (!isRunning) {
             render(wrapForAutocomplete);
             isRunning = true;
@@ -94,20 +91,20 @@ function addSelectedRepo(container) {
         const name = choice.querySelector('.app__autocomplete-txt').textContent;
         const owner = choice.dataset.owner;
 
-        if (searchWindow.value !== '') {
-            searchWindow.value = '';
-            if (!isFocusListener) {
-                searchWindow.addEventListener('focus', checkNeedFocusClean);
-                isFocusListener = true;
-            }
-        }
-
         const check = checkAddedRepo([name, owner]);
 
         if (check === false) {
             createNotice('Вы уже это сохранили', choice, 1500);
             return;
         }
+
+        if (searchWindow.value !== '') {
+            searchWindow.value = '';
+        }
+        cleaning([
+            ...wrapForAutocomplete.querySelectorAll('.app__autocomplete-item'),
+        ]);
+        isRepeatedRequest = true;
 
         const stars = choice.dataset.stars;
 
@@ -134,23 +131,6 @@ function checkAddedRepo(newRepo) {
         if (name === newRepo[0] && owner === newRepo[1]) return false;
     }
     return addedRepos.length;
-}
-
-function checkNeedFocusClean() {
-    if (searchWindow.value !== '' || !runFocusListener) return;
-    isFocus = true;
-    searchWindow.addEventListener('blur', () => (isFocus = false), {
-        once: true,
-    });
-    focusClean();
-}
-
-function focusClean() {
-    if (isFocus === false || searchWindow.value !== '') return;
-    cleaning([
-        ...wrapForAutocomplete.querySelectorAll('.app__autocomplete-item'),
-    ]);
-    runFocusListener = false;
 }
 
 function cleaning(element) {
